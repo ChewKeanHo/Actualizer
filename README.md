@@ -134,17 +134,18 @@ $ sudo su
 
 ### 3. Download the Script
 
-Proceed to download a copy of the script from one of my release servers
-across the Globe:
+Go to root directory and proceed to download a copy of the script from one of
+my release servers across the Globe:
 
 ```
+$ cd /
 $ curl --tlsv1.2 --location --output "/actualizer.sh" --url [URL]
 ```
 
 Available URLs:
 
-* **Zenodo (Global)** - `https://`
-* **GitHub (Global)** - `https://github.com/ChewKeanHo/Actualizer/releases/download/[VERSION]/debian-install.sh`
+* **Zenodo (Global)** - `https://zenodo.org/records/15353619/files/debian-minbase-install.sh?download=1`
+* **GitHub (Global)** - `https://github.com/ChewKeanHo/Actualizer/releases/download/[VERSION]/debian-minbase-install.sh`
 
 
 
