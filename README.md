@@ -45,9 +45,8 @@ Build smaller. Build smarter. Build with (Holloway) Chew, Kean Ho's Actualizer.
 
 [![Actualizer](src/icons/animated-banner_1200x100.svg)](#)
 
-Acutalizer is an user-prompting automata so you are required to response on
-screen setup accordingly before paritition mounting steps. Otherwise, you're
-good!
+Acutalizer is an user-prompting automata script so you are required to response
+on screen setup accordingly. Otherwise, you're good!
 
 Here are the base features installed using this script into your target:
 
@@ -134,17 +133,18 @@ $ sudo su
 
 ### 3. Download the Script
 
-Proceed to download a copy of the script from one of my release servers
-across the Globe:
+Go to root directory and proceed to download a copy of the script from one of
+my release servers across the Globe:
 
 ```
+$ cd /
 $ curl --tlsv1.2 --location --output "/actualizer.sh" --url [URL]
 ```
 
 Available URLs:
 
-* **Zenodo (Global)** - `https://`
-* **GitHub (Global)** - `https://github.com/ChewKeanHo/Actualizer/releases/download/[VERSION]/debian-install.sh`
+* **Zenodo (Global)** - `https://zenodo.org/records/15353619/files/debian-minbase-install.sh?download=1`
+* **GitHub (Global)** - `https://github.com/ChewKeanHo/Actualizer/releases/download/[VERSION]/debian-minbase-install.sh`
 
 
 
@@ -153,7 +153,8 @@ Available URLs:
 Now that we have the script available for execution, proceed to run it. This
 script will tell you what is required on-screen (e.g. what dependencies are
 missing, checking qualified cryptography random generator, etc). Please
-Respond accordingly.
+respond accordingly throughout the session. From steps to steps, the script
+will let you know when it will take a long time so you can work on other stuff.
 
 > **SIDE-NOTE**:
 >
