@@ -15,6 +15,8 @@
 
 
 # initialize
+APP_VERSION="1.1.0"
+
 1>&2 printf -- "%s\n" "\
 (Holloway) Chew, Kean Ho's
    db     dP\"\"b8 888888 88   88    db    88     88 8888P 888888 88\"\"Yb 
@@ -24,7 +26,7 @@ dP\"\"\"\"Yb  YboodP   88   \`YbodP' dP\"\"\"\"Yb 88ood8 88 d8888 8
 ----------------------------------------------------------------------
 Actualize the smallest Debian image possible!
 
-Version           : 1.1.0
+Version           : ${APP_VERSION}
 Principal Designer: (Holloway) Chew, Kean Ho <hello@hollowaykeanho.com>
 
 "
