@@ -1027,10 +1027,13 @@ fi
 # create cryptsetup datastore
 if [ "$____step" -eq 2 ] &&
 [ ! "${TARGET_DEVICE#"/dev/"}" = "$TARGET_DEVICE" ]; then
-        1>&2 printf -- "\
-I: Formatting '%s' with 'cryptsetup luks2'...
-I: This can take a while depending on disk size (e.g. hours for TB)...
-" "$TARGET_PARTITION_CORE"
+        1>&2 printf -- "%s\n" "\
+I: This can take a while depending on disk size (e.g. hours for TB)..."
+        dd if=/dev/urandom of="$TARGET_PARTITION_CORE" status=progress
+
+
+        1>&2 printf -- "%s\n" "\
+I: Formatting '${TARGET_PARTITION_CORE}' with 'cryptsetup luks2'..."
         cryptsetup \
                 --verbose \
                 --batch-mode \
@@ -1042,8 +1045,6 @@ I: This can take a while depending on disk size (e.g. hours for TB)...
                 --pbkdf-memory 128000 \
                 --pbkdf-parallel 1 \
                 luksFormat "$TARGET_PARTITION_CORE"
-
-
 # IMPORTANT NOTICE
 # (1) Eventually we want to move towards chcha20-poly1305 (Adiantum) but at
 #     the moment Debian 12 kernel does not have a build method to handle such
