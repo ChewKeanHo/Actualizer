@@ -657,6 +657,50 @@ unset ____hit ____old_IFS
 
 
 
+# valdiate $TARGET_TIMEZONE
+____old_IFS="$IFS"
+while true; do
+        if [ "$TARGET_TIMEZONE" = "" ]; then
+                1>&2 printf -- "%s" "\
+?: Default Timezone
+?: ================
+?: NOTE: Please refer '/usr/share/zoneinfo/*' for supported timezones.
+?:       Any relative path beyond that 'zoneinfo/' directory is the
+?:       value. Example:
+?:              'Asia/Kuala_Lumpur' -> '/usr/share/zoneinfo/Asia/Kuala_Lumpur'
+?:
+?: Your Input (E.g. 'UTC'):
+?: > "
+                IFS= read -r TARGET_TIMEZONE
+                IFS="$____old_IFS"
+
+                case "$TARGET_TIMEZONE" in
+                "")
+                        continue # mis-pressed enter
+                        ;;
+                *)
+                        ;;
+                esac
+        fi
+
+        if [ ! -e "/usr/share/zoneinfo/${TARGET_TIMEZONE}" ] ||
+        [ -d "/usr/share/zoneinfo/${TARGET_TIMEZONE}" ]; then
+                1>&2 printf -- "%s\n\n" "E: Invalid Input. Please Retry!"
+                TARGET_TIMEZONE=""
+                continue
+        fi
+
+
+        # all good
+        break
+done
+IFS="$____old_IFS"
+unset ____hit ____old_IFS
+1>&2 printf -- "I: \$TARGET_TIMEZONE is set to '%s'.\n\n" "$TARGET_TIMEZONE"
+
+
+
+
 # validate $TARGET_USERNAME_USER
 ____old_IFS="$IFS"
 while true; do
@@ -839,6 +883,7 @@ TARGET_INIT=${TARGET_INIT}
 TARGET_ARCH=${TARGET_ARCH}
 TARGET_KERNEL=${TARGET_KERNEL}
 TARGET_LANG=${TARGET_LANG}
+TARGET_TIMEZONE=${TARGET_TIMEZONE}
 TARGET_USERNAME_USER=${TARGET_USERNAME_USER}
 TARGET_PASSWORD_USER=${TARGET_PASSWORD_USER}
 TARGET_PASSWORD_ROOT=${TARGET_PASSWORD_ROOT}
@@ -1479,8 +1524,42 @@ fi
 
 
 
-# apt setup init
+# setup timezone
 if [ "$____step" -eq 19 ]; then
+        1>&2 printf -- "I: Setting Timezone for Target OS...\n"
+        printf -- "%s" "${TARGET_TIMEZONE}" > "${TARGET_MOUNT}/etc/timezone"
+        if [ $? -ne 0 ]; then
+                1>&2 printf -- "E: Operation Failed. Bailing Out...\n\n"
+                exit 1
+        fi
+
+
+        1>&2 printf -- "I: Clean Up Existing Localtime for Target OS...\n"
+        rm -f "${TARGET_MOUNT}/etc/localtime" > /dev/null
+
+
+        1>&2 printf -- \
+                "I: Dpkg-reconfiguring 'tzdata' for Target OS...\n"
+        chroot "$TARGET_MOUNT" "/bin/sh" -c "\
+dpkg-reconfigure --frontend noninteractive tzdata \
+"
+        if [ $? -ne 0 ]; then
+                1>&2 printf -- "E: Operation Failed. Bailing Out...\n\n"
+                exit 1
+        fi
+
+
+        # track step
+        1>&2 printf -- "\n"
+        ____step=$(($____step + 1))
+        printf -- "%d\n" "$____step" > "${0%.sh}.step"
+fi
+
+
+
+
+# apt setup init
+if [ "$____step" -eq 20 ]; then
         1>&2 printf -- \
                 "I: Apt Installing '%s' for Target OS...\n" \
                 "$TARGET_INIT"
@@ -1501,7 +1580,7 @@ fi
 
 
 # setup /etc/hostname
-if [ "$____step" -eq 20 ]; then
+if [ "$____step" -eq 21 ]; then
         1>&2 printf -- "I: Setting Up /etc/hostname for Target OS...\n"
         printf -- "%s" "$TARGET_OWNER" > "${TARGET_MOUNT}/etc/hostname"
         if [ $? -ne 0 ]; then
@@ -1520,7 +1599,7 @@ fi
 
 
 # setup /etc/crypttab
-if [ "$____step" -eq 21 ]; then
+if [ "$____step" -eq 22 ]; then
         1>&2 printf -- "I: Setting Up '/etc/crypttab' for Target OS...\n"
 
 
@@ -1558,7 +1637,7 @@ fi
 
 
 # apt setup cryptsetup
-if [ "$____step" -eq 22 ]; then
+if [ "$____step" -eq 23 ]; then
         1>&2 printf -- \
                 "I: Apt Installing 'cryptsetup cryptsetup-initramfs' for Target OS..\n"
         chroot "$TARGET_MOUNT" "/bin/sh" -c "\
@@ -1580,7 +1659,7 @@ fi
 
 
 # apt setup lvm2
-if [ "$____step" -eq 23 ]; then
+if [ "$____step" -eq 24 ]; then
         1>&2 printf -- "I: Apt Installing 'lvm2' for Target OS...\n"
         chroot "$TARGET_MOUNT" "/bin/sh" -c "apt install lvm2 -y"
         if [ $? -ne 0 ]; then
@@ -1599,7 +1678,7 @@ fi
 
 
 # setup /etc/fstab
-if [ "$____step" -eq 24 ]; then
+if [ "$____step" -eq 25 ]; then
         1>&2 printf -- "I: Setting Up /etc/crypttab for Target OS...\n"
 
 
@@ -1652,7 +1731,7 @@ fi
 
 
 # setup signed kernel
-if [ "$____step" -eq 25 ]; then
+if [ "$____step" -eq 26 ]; then
         1>&2 printf -- \
                 "I: Apt Installing '%s' for Target OS...\n" \
                 "$TARGET_KERNEL"
@@ -1673,7 +1752,7 @@ fi
 
 
 # setup signed bootloader
-if [ "$____step" -eq 26 ]; then
+if [ "$____step" -eq 27 ]; then
         1>&2 printf -- \
                 "I: Apt Installing '%s' for Target OS...\n" \
                 "shim-signed grub-efi-${TARGET_ARCH}-signed dkms"
@@ -1714,7 +1793,7 @@ fi
 
 
 # apt setup network
-if [ "$____step" -eq 27 ]; then
+if [ "$____step" -eq 28 ]; then
         1>&2 printf -- \
                 "I: Apt Installing '%s' for Target OS...\n" \
                 "iwd connman iprouts2"
@@ -1737,7 +1816,7 @@ fi
 
 
 # setup alpha user
-if [ "$____step" -eq 28 ]; then
+if [ "$____step" -eq 29 ]; then
         1>&2 printf -- "I: Add Alpha User to Target OS...\n"
         chroot "$TARGET_MOUNT" "/bin/sh" -c "\
 adduser --shell '/bin/bash' --gecos '' --disabled-password '${TARGET_USERNAME_USER}' \
@@ -1768,7 +1847,7 @@ fi
 
 
 # create alpha user's home directory
-if [ "$____step" -eq 29 ]; then
+if [ "$____step" -eq 30 ]; then
         1>&2 printf -- \
                 "I: Creating Alpha User's Home Directory for Target OS...\n"
         mkdir -p "${TARGET_MOUNT}/home/${TARGET_USERNAME_USER}"
@@ -1869,7 +1948,7 @@ fi
 
 
 # setup root user
-if [ "$____step" -eq 30 ]; then
+if [ "$____step" -eq 31 ]; then
         1>&2 printf -- "I: Setup Root User's Password for Target OS...\n"
         chroot "$TARGET_MOUNT" "/bin/sh" -c "\
 usermod -p '${TARGET_PASSWORD_ROOT}' root \
@@ -1890,7 +1969,7 @@ fi
 
 
 # configure root's home directory
-if [ "$____step" -eq 31 ]; then
+if [ "$____step" -eq 32 ]; then
         1>&2 printf -- \
                 "I: Configuring Root User's Home Directory for Target OS...\n"
         cp "${TARGET_MOUNT}/home/${TARGET_USERNAME_USER}/.profile" \

@@ -93,6 +93,7 @@ Here are the base features installed using this script into your target:
 * **Debian APT HTTPS Transport Installed** - for securing upstream supply chain.
 * **No Sudo package** - Reduces attack surfaces using 1 root and 1 non-root
                         accounts only. (security).
+* **Set Default Timezone** - Configure default timezone.
 
 
 
