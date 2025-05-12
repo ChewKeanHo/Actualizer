@@ -91,6 +91,8 @@ Here are the base features installed using this script into your target:
 * **Debian CA Certificates Installed** - for seamless secured network
                                          connectivity.
 * **Debian APT HTTPS Transport Installed** - for securing upstream supply chain.
+* **No Sudo package** - Reduces attack surfaces using 1 root and 1 non-root
+                        accounts only. (security).
 
 
 
@@ -105,7 +107,7 @@ Here are the base features installed using this script into your target:
 
 You need to download the Debian Live DVD (not the Installer DVD). When booted
 up, it **MUST** show **Live Boot Option**. Otherwise, you got the wrong image
-so please procure it.
+so please procure the right one.
 
 [![live-dvd](src/screenshots/live-dvd.jpg)](#)
 
@@ -115,6 +117,14 @@ Available URLs:
 * **Debian Live DVD Official Page** - https://www.debian.org/CD/live/
 * **Debian Live DVD Wiki Page** - https://wiki.debian.org/DebianLive
 * **Debian Live DVD (amd64) ISO Repository** - https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/
+
+This is better than the installer DVD because if you're looking for a new
+hardware but unsure about Debian support. This live DVD stick can boot up a
+genuine Debian and you can use `lspci -k` to check all hardware+drivers
+support (make sure all devices has a driver running).
+
+Moreover, the same stick can act as a recovery stick in the future if you
+did something wrong.
 
 
 
@@ -134,7 +144,7 @@ $ sudo su
 ### 3. Download the Script
 
 Go to root directory and proceed to download a copy of the script from one of
-my release servers across the Globe:
+my release servers across the globe:
 
 ```
 $ cd /
@@ -159,7 +169,7 @@ will let you know when it will take a long time so you can work on other stuff.
 > **SIDE-NOTE**:
 >
 > For dependencies, you can safely do `$ apt install debootstrap -y` before
-> executing the script. For some reason, Debian did not ship the package
+> executing the script. For some reason, Debian did not ship that package
 > enabled by default.
 
 ```
@@ -168,6 +178,29 @@ $ ./actualizer.sh
 ```
 
 [![execute-actualizer](src/screenshots/execute-script.jpg)](#)
+
+
+
+### 5. Post-Installation
+
+Congratulations. You now have a smallest possible Debian OS.
+**Keep that Debian Live DVD stick for future recovery stick or shopping use**.
+Example:
+
+1. https://wiki.debian.org/GrubEFIReinstallOnLUKS (default)
+2. https://wiki.debian.org/GrubEFIReinstall
+
+If you need to install desktop manager (e.g. GNOME, KDE, LXQt (my go-to)), you
+can checkout the Debian Wiki to crawl back. However, for safety, you should
+perform the following:
+
+```
+$ apt install dialog sudo -y
+```
+
+This project pushes Debian OS to the edge cases so some packages may fail
+because of dependencies listing blindspot. Please **RESPECT** the maintainer
+and report back accordingly.
 
 
 
