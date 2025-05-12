@@ -154,7 +154,7 @@ $ curl --tlsv1.2 --location --output "/actualizer.sh" --url [URL]
 
 Available URLs:
 
-* **Zenodo (Global)** - `https://zenodo.org/records/15353619/files/debian-minbase-install.sh?download=1`
+* **Zenodo (Global)** - `https://zenodo.org/records/15386900/files/debian-minbase-install.sh`
 * **GitHub (Global)** - `https://github.com/ChewKeanHo/Actualizer/releases/download/[VERSION]/debian-minbase-install.sh`
 
 
