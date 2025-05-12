@@ -15,7 +15,7 @@
 
 
 # initialize
-APP_VERSION="1.1.0"
+APP_VERSION="1.2.0"
 
 1>&2 printf -- "%s\n" "\
 (Holloway) Chew, Kean Ho's
@@ -53,6 +53,38 @@ fi
 
 
 
+# install critical dependencies
+1>&2 printf -- "I: Install Required Apt Packages for Actualizer...\n"
+____old_IFS="$IFS"
+while IFS="" read ____line || [ -n "$____line" ]; do
+        if [ "$____line" = "" ]; then
+                continue
+        fi
+
+
+        1>&2 printf -- "I: Installing '%s' Package...\n" "$____line"
+        apt install "$____line" -y
+        if [ $? -ne 0 ]; then
+                1>&2 printf -- "\
+E: Installation Failed!
+E: Please Try Again or Perform Manual Installation.
+E: Bailing Out...
+
+" "$____line"
+                IFS="$____old_IFS"
+                unset ____line ____old_IFS
+                exit 1
+        fi
+done<<EOF
+debootstrap
+whois
+EOF
+IFS="$____old_IFS"
+unset ____line ____old_IFS
+
+
+
+
 # validate dependencies
 1>&2 printf -- "I: Validating Host OS...\n"
 ____old_IFS="$IFS"
@@ -60,6 +92,7 @@ while IFS="" read ____line || [ -n "$____line" ]; do
         if [ "$____line" = "" ]; then
                 continue
         fi
+
 
         1>&2 printf -- "I: Checking '%s'...\n" "$____line"
         command -v "$____line" > /dev/null
@@ -83,6 +116,7 @@ lsblk
 pvcreate
 vgcreate
 lvcreate
+mkpasswd
 mkfs.ext2
 mkfs.ext4
 mkfs.vfat
@@ -774,7 +808,7 @@ while [ "$TARGET_PASSWORD_USER" = "" ]; do
         IFS="$____old_IFS"
         stty echo
         1>&2 printf -- "\n"
-        case "$____password" in
+        case "$____verify" in
         "")
                 continue # mis-pressed enter
                 ;;
@@ -784,16 +818,17 @@ while [ "$TARGET_PASSWORD_USER" = "" ]; do
 
         if [ ! "$____password" = "$____verify" ]; then
                 1>&2 printf -- "E: Password Mismatched!\n\n"
-                ____password=""
-                ____verify=""
+                unset ____password ____verify
                 continue
         fi
-        ____verify=""
         unset ____verify
 
 
         # password matched
-        TARGET_PASSWORD_USER="$(openssl passwd -6 "$____password")"
+        TARGET_PASSWORD_USER="$( \
+                printf -- "%s" "$____password" \
+                | mkpasswd --method=yescrypt --stdin 2> /dev/null \
+        )"
         unset ____password ____verify
         break
 done
@@ -837,7 +872,7 @@ while [ "$TARGET_PASSWORD_ROOT" = "" ]; do
         IFS="$____old_IFS"
         stty echo
         1>&2 printf -- "\n"
-        case "$____password" in
+        case "$____verify" in
         "")
                 continue # mis-pressed enter
                 ;;
@@ -847,13 +882,15 @@ while [ "$TARGET_PASSWORD_ROOT" = "" ]; do
 
         if [ ! "$____password" = "$____verify" ]; then
                 1>&2 printf -- "E: Password Mismatched!\n\n"
-                ____password=""
-                ____verify=""
+                unset ____password ____verify
                 continue
         fi
 
         # password matched
-        TARGET_PASSWORD_ROOT="$(openssl passwd -6 "$____password")"
+        TARGET_PASSWORD_ROOT="$( \
+                printf -- "%s" "$____password" \
+                | mkpasswd --method=yescrypt --stdin 2> /dev/null \
+        )"
         unset ____password ____verify
         break
 done
