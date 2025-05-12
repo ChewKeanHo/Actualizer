@@ -1954,6 +1954,21 @@ fi
 
 
 
+# purge sudo for resources conservation
+____step=9998
+if [ "$____step" -eq 9998 ]; then
+        1>&2 printf -- \
+                "I: Purging 'sudo' To Conserve Resources for Target OS...\n"
+        chroot "$TARGET_MOUNT" "/bin/sh" -c "apt purge sudo -y"
+        if [ $? -ne 0 ]; then
+                1>&2 printf -- "E: Operation Failed. Bailing Out...\n\n"
+                exit 1
+        fi
+fi
+
+
+
+
 # setup completed - ask user for chroot
 ____step=9999
 printf -- "%d\n" "$____step" > "${0%.sh}.step"
