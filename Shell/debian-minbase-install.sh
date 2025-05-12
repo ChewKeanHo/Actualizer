@@ -1258,6 +1258,11 @@ fi
 # mount hostsystem for chroot
 if [ "$____step" -eq 14 ]; then
         for ____target in /dev /dev/pts /proc /sys /sys/firmware/efi/efivars /run; do
+                if [ ! -e "$____target" ]; then
+                        continue
+                fi
+
+
                 1>&2 printf -- \
                         "I: Mounting '%s' to '%s' for Target OS...\n" \
                         "$____target" \
