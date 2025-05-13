@@ -216,9 +216,14 @@ and report back accordingly.
 
 [![Actualizer](src/icons/animated-banner_1200x100.svg)](#)
 
-You can procure my sponsorship token here
-(https://www.hollowaykeanho.com/en/stores/). Financial supports are always
-appreciated.
+You can procure my financial sponsorship appreciation token directly from
+my Stripe portal here (cheaper rate):
+
+https://buy.stripe.com/dR614jehR5LfexG5kn
+
+
+Financial supports are always better and much appreciated. From the bottom of
+my heart, thank you.
 
 
 
