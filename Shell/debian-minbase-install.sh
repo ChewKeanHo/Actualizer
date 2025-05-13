@@ -1031,19 +1031,32 @@ fi
 
 
 
-# create cryptsetup datastore
+# bitwiping cryptsetup paritition
 if [ "$____step" -eq 2 ] &&
 [ ! "${TARGET_DEVICE#"/dev/"}" = "$TARGET_DEVICE" ]; then
-        1>&2 printf -- "%s\n" "\
-I: This can take a while depending on disk size (e.g. hours for TB)..."
+        1>&2 printf -- "%s" "\
+I: Bitwiping '${TARGET_PARTITION_CORE}'...
+I: This can takes a while depending on disk size (e.g. hours for TB)...
+"
         dd if=/dev/urandom of="$TARGET_PARTITION_CORE" status=progress
 
 
+        # track step
+        1>&2 printf -- "\n"
+        ____step=$(($____step + 1))
+        printf -- "%d\n" "$____step" > "${0%.sh}.step"
+fi
+
+
+
+
+# create cryptsetup datastore
+if [ "$____step" -eq 3 ] &&
+[ ! "${TARGET_DEVICE#"/dev/"}" = "$TARGET_DEVICE" ]; then
         1>&2 printf -- "%s\n" "\
 I: Formatting '${TARGET_PARTITION_CORE}' with 'cryptsetup luks2'..."
         cryptsetup \
                 --verbose \
-                --batch-mode \
                 --use-urandom \
                 --type luks2 \
                 --cipher aes-xts-plain64 \
@@ -1058,7 +1071,6 @@ I: Formatting '${TARGET_PARTITION_CORE}' with 'cryptsetup luks2'..."
 #     algorithm. Hence, we park the code here for now.
 #        cryptsetup \
 #                --verbose \
-#                --batch-mode \
 #                --use-urandom \
 #                --type luks2 \
 #                --cipher chacha20-poly1305 \
@@ -1083,7 +1095,7 @@ fi
 
 
 # open crypsetup datastore
-if [ "$____step" -eq 3 ] &&
+if [ "$____step" -eq 4 ] &&
 [ ! "${TARGET_DEVICE#"/dev/"}" = "$TARGET_DEVICE" ]; then
         1>&2 printf -- \
                 "I: Opening '%s' with 'cryptsetup'...\n" \
@@ -1107,7 +1119,7 @@ fi
 
 
 # format lvm physical volume
-if [ "$____step" -eq 4 ] &&
+if [ "$____step" -eq 5 ] &&
 [ ! "${TARGET_DEVICE#"/dev/"}" = "$TARGET_DEVICE" ]; then
         1>&2 printf -- \
                 "I: Setting Up '%s' with 'pvcreate'...\n" \
@@ -1129,7 +1141,7 @@ fi
 
 
 # format lvm volume group
-if [ "$____step" -eq 5 ] &&
+if [ "$____step" -eq 6 ] &&
 [ ! "${TARGET_DEVICE#"/dev/"}" = "$TARGET_DEVICE" ]; then
         1>&2 printf -- \
                 "I: Setting Up '%s' with 'vgcreate'...\n" \
@@ -1151,7 +1163,7 @@ fi
 
 
 # format lvm logical volume
-if [ "$____step" -eq 6 ] &&
+if [ "$____step" -eq 7 ] &&
 [ ! "${TARGET_DEVICE#"/dev/"}" = "$TARGET_DEVICE" ]; then
         lvcreate \
                 --name "$TARGET_PARTITION_LVM_LV" \
@@ -1173,7 +1185,7 @@ fi
 
 
 # format ext4 logical volume
-if [ "$____step" -eq 7 ] &&
+if [ "$____step" -eq 8 ] &&
 [ ! "${TARGET_DEVICE#"/dev/"}" = "$TARGET_DEVICE" ]; then
         1>&2 printf -- \
                 "I: Formatting '%s' to 'ext4'...\n" \
@@ -1195,7 +1207,7 @@ fi
 
 
 # format legacy boot volume
-if [ "$____step" -eq 8 ] &&
+if [ "$____step" -eq 9 ] &&
 [ ! "${TARGET_DEVICE#"/dev/"}" = "$TARGET_DEVICE" ]; then
         1>&2 printf -- \
                 "I: Formatting '%s' to 'ext2'...\n" \
@@ -1217,7 +1229,7 @@ fi
 
 
 # format efi boot volume
-if [ "$____step" -eq 9 ] &&
+if [ "$____step" -eq 10 ] &&
 [ ! "${TARGET_DEVICE#"/dev/"}" = "$TARGET_DEVICE" ]; then
         1>&2 printf -- \
                 "I: Formatting '%s' to 'vfat'...\n" \
@@ -1239,7 +1251,7 @@ fi
 
 
 # mount core data volume
-if [ "$____step" -eq 10 ] &&
+if [ "$____step" -eq 11 ] &&
 [ ! "${TARGET_DEVICE#"/dev/"}" = "$TARGET_DEVICE" ]; then
         1>&2 printf -- "I: Creating '%s' Mountpoint...\n" "$TARGET_MOUNT"
         mkdir -p "$TARGET_MOUNT"
@@ -1269,7 +1281,7 @@ fi
 
 
 # debootstrap data volume
-if [ "$____step" -eq 11 ]; then
+if [ "$____step" -eq 12 ]; then
         1>&2 printf -- \
                 "I: Bootstraping 'debian-%s' into '%s'...\n" \
                 "$TARGET_ARCH" \
@@ -1298,7 +1310,7 @@ fi
 
 
 # mount boot volume
-if [ "$____step" -eq 12 ] &&
+if [ "$____step" -eq 13 ] &&
 [ ! "${TARGET_DEVICE#"/dev/"}" = "$TARGET_DEVICE" ]; then
         1>&2 printf -- \
                 "I: Mounting '%s' to '%s'...\n" \
@@ -1322,7 +1334,7 @@ fi
 
 
 # mount efi volume
-if [ "$____step" -eq 13 ] &&
+if [ "$____step" -eq 14 ] &&
 [ ! "${TARGET_DEVICE#"/dev/"}" = "$TARGET_DEVICE" ]; then
         1>&2 printf -- \
                 "I: Mounting '%s' to '%s'...\n" \
@@ -1346,7 +1358,7 @@ fi
 
 
 # mount hostsystem for chroot
-if [ "$____step" -eq 14 ]; then
+if [ "$____step" -eq 15 ]; then
         for ____target in /dev /dev/pts /proc /sys /sys/firmware/efi/efivars /run; do
                 if [ ! -e "$____target" ]; then
                         continue
@@ -1378,7 +1390,7 @@ fi
 
 
 # overwrite target's main apt source.list
-if [ "$____step" -eq 15 ]; then
+if [ "$____step" -eq 16 ]; then
         1>&2 printf -- \
                 "I: Overwriting '/etc/apt/sources.list' for Target OS...\n"
         printf -- "%s\n" "\
@@ -1428,7 +1440,7 @@ fi
 
 
 # apt update target os
-if [ "$____step" -eq 16 ]; then
+if [ "$____step" -eq 17 ]; then
         1>&2 printf -- "I: Apt Updating for Target OS...\n"
         chroot "$TARGET_MOUNT" "/bin/sh" -c "apt update -y"
         if [ $? -ne 0 ]; then
@@ -1447,7 +1459,7 @@ fi
 
 
 # apt setup target os' locales
-if [ "$____step" -eq 17 ]; then
+if [ "$____step" -eq 18 ]; then
         1>&2 printf -- "I: Apt Reinstalling 'locales' for Target OS...\n"
         chroot "$TARGET_MOUNT" "/bin/sh" -c "apt install --reinstall locales -y"
         if [ $? -ne 0 ]; then
@@ -1511,7 +1523,7 @@ fi
 
 
 # setup default keyboard
-if [ "$____step" -eq 18 ]; then
+if [ "$____step" -eq 19 ]; then
         1>&2 printf -- \
                 "I: Apt Reinstalling 'keyboard-configuration' for Target OS...\n"
         chroot "$TARGET_MOUNT" "/bin/sh" -c "\
@@ -1570,7 +1582,7 @@ fi
 
 
 # setup timezone
-if [ "$____step" -eq 19 ]; then
+if [ "$____step" -eq 20 ]; then
         1>&2 printf -- "I: Setting Timezone for Target OS...\n"
         printf -- "%s" "${TARGET_TIMEZONE}" > "${TARGET_MOUNT}/etc/timezone"
         if [ $? -ne 0 ]; then
@@ -1604,7 +1616,7 @@ fi
 
 
 # apt setup init
-if [ "$____step" -eq 20 ]; then
+if [ "$____step" -eq 21 ]; then
         1>&2 printf -- \
                 "I: Apt Installing '%s' for Target OS...\n" \
                 "$TARGET_INIT"
@@ -1625,7 +1637,7 @@ fi
 
 
 # setup /etc/hostname
-if [ "$____step" -eq 21 ]; then
+if [ "$____step" -eq 22 ]; then
         1>&2 printf -- "I: Setting Up /etc/hostname for Target OS...\n"
         printf -- "%s" "$TARGET_OWNER" > "${TARGET_MOUNT}/etc/hostname"
         if [ $? -ne 0 ]; then
@@ -1644,7 +1656,7 @@ fi
 
 
 # setup /etc/crypttab
-if [ "$____step" -eq 22 ]; then
+if [ "$____step" -eq 23 ]; then
         1>&2 printf -- "I: Setting Up '/etc/crypttab' for Target OS...\n"
 
 
@@ -1682,7 +1694,7 @@ fi
 
 
 # apt setup cryptsetup
-if [ "$____step" -eq 23 ]; then
+if [ "$____step" -eq 24 ]; then
         1>&2 printf -- \
                 "I: Apt Installing 'cryptsetup cryptsetup-initramfs' for Target OS..\n"
         chroot "$TARGET_MOUNT" "/bin/sh" -c "\
@@ -1704,7 +1716,7 @@ fi
 
 
 # apt setup lvm2
-if [ "$____step" -eq 24 ]; then
+if [ "$____step" -eq 25 ]; then
         1>&2 printf -- "I: Apt Installing 'lvm2' for Target OS...\n"
         chroot "$TARGET_MOUNT" "/bin/sh" -c "apt install lvm2 -y"
         if [ $? -ne 0 ]; then
@@ -1723,7 +1735,7 @@ fi
 
 
 # setup /etc/fstab
-if [ "$____step" -eq 25 ]; then
+if [ "$____step" -eq 26 ]; then
         1>&2 printf -- "I: Setting Up /etc/crypttab for Target OS...\n"
 
 
@@ -1776,7 +1788,7 @@ fi
 
 
 # setup signed kernel
-if [ "$____step" -eq 26 ]; then
+if [ "$____step" -eq 27 ]; then
         1>&2 printf -- \
                 "I: Apt Installing '%s' for Target OS...\n" \
                 "$TARGET_KERNEL"
@@ -1797,7 +1809,7 @@ fi
 
 
 # setup signed bootloader
-if [ "$____step" -eq 27 ]; then
+if [ "$____step" -eq 28 ]; then
         1>&2 printf -- \
                 "I: Apt Installing '%s' for Target OS...\n" \
                 "shim-signed grub-efi-${TARGET_ARCH}-signed dkms"
@@ -1838,10 +1850,10 @@ fi
 
 
 # apt setup network
-if [ "$____step" -eq 28 ]; then
+if [ "$____step" -eq 29 ]; then
         1>&2 printf -- \
                 "I: Apt Installing '%s' for Target OS...\n" \
-                "iwd connman iprouts2"
+                "iwd connman iproute2"
         chroot "$TARGET_MOUNT" "/bin/sh" -c "\
 apt install iwd connman iproute2 -y \
 "
@@ -1861,7 +1873,7 @@ fi
 
 
 # setup alpha user
-if [ "$____step" -eq 29 ]; then
+if [ "$____step" -eq 30 ]; then
         1>&2 printf -- "I: Add Alpha User to Target OS...\n"
         chroot "$TARGET_MOUNT" "/bin/sh" -c "\
 adduser --shell '/bin/bash' --gecos '' --disabled-password '${TARGET_USERNAME_USER}' \
@@ -1892,7 +1904,7 @@ fi
 
 
 # create alpha user's home directory
-if [ "$____step" -eq 30 ]; then
+if [ "$____step" -eq 31 ]; then
         1>&2 printf -- \
                 "I: Creating Alpha User's Home Directory for Target OS...\n"
         mkdir -p "${TARGET_MOUNT}/home/${TARGET_USERNAME_USER}"
@@ -1993,7 +2005,7 @@ fi
 
 
 # setup root user
-if [ "$____step" -eq 31 ]; then
+if [ "$____step" -eq 32 ]; then
         1>&2 printf -- "I: Setup Root User's Password for Target OS...\n"
         chroot "$TARGET_MOUNT" "/bin/sh" -c "\
 usermod -p '${TARGET_PASSWORD_ROOT}' root \
@@ -2014,7 +2026,7 @@ fi
 
 
 # configure root's home directory
-if [ "$____step" -eq 32 ]; then
+if [ "$____step" -eq 33 ]; then
         1>&2 printf -- \
                 "I: Configuring Root User's Home Directory for Target OS...\n"
         cp "${TARGET_MOUNT}/home/${TARGET_USERNAME_USER}/.profile" \
