@@ -55,6 +55,9 @@ Here are the base features installed using this script into your target:
                             is installed.
 * **Cryptsetup Datastore** - `CORE` partition is encrypted with the latest
                              acceptable algorithm.
+* **Non-Compromising Datastore Bitwipe** - making sure `CORE` partition is
+                                           filled with randomized bits and bytes
+                                           before `cryptsetup` reformatting.
 * **LVM Disk Management** - `CORE` partition is managed by `lvm` inside the
                              cryptsetup encrypted layer for data integrity &
                              maintenances.
@@ -154,7 +157,7 @@ $ curl --tlsv1.2 --location --output "/actualizer.sh" --url [URL]
 
 Available URLs:
 
-* **Zenodo (Global)** - `https://zenodo.org/records/15386900/files/debian-minbase-install.sh`
+* **Zenodo (Global)** - `https://zenodo.org/records/15392683/files/debian-minbase-install.sh`
 * **GitHub (Global)** - `https://github.com/ChewKeanHo/Actualizer/releases/download/[VERSION]/debian-minbase-install.sh`
 
 
@@ -169,9 +172,12 @@ will let you know when it will take a long time so you can work on other stuff.
 
 > **SIDE-NOTE**:
 >
-> For dependencies, you can safely do `$ apt install debootstrap -y` before
-> executing the script. For some reason, Debian did not ship that package
-> enabled by default.
+> For version `v1.2.0` and above, Actualizer now `apt install` all the
+> required dependencies so you do not need to do anything. Hooray!
+>
+> For version `v1.1.0` and below, you can safely do
+> `$ apt install debootstrap -y` before executing the script. For some
+> reason, Debian 12 did not ship that package enabled by default.
 
 ```
 $ chmod +x ./actualizer.sh   # NOTE: Run once to make it executable
@@ -228,5 +234,13 @@ must be up first before anything else. Stay tuned.
 
 [![Actualizer](src/icons/animated-banner_1200x100.svg)](#)
 
-Actualizer is licensed under
-[(Holloway) Chew, Kean Ho's Liberal License](LICENSE.txt).
+Actualizer version 1.2.0 and above is licensed under [Zero BSD](LICENSE.txt).
+This means if you use these versions, Actualizer is truly Open Source.
+
+Actualizer version 1.1.0 and below is licensed under
+[(Holloway) Chew, Kean Ho's Liberal License](https://doi.org/10.5281/zenodo.13770769).
+It's my ZeroBSD + Creative Common + Some updated Data & Privacy Laws upgrades.
+These versions are Source Available.
+
+Debian and its softwares retains their respective trademarks, copyrights, and
+licenses.
